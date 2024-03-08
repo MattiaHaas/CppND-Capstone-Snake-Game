@@ -16,6 +16,7 @@ class Game {
   int GetScore() const;
   int GetSize() const;
   void SaveScore();
+  void PrintHighScore();
 
  private:
   Snake snake;

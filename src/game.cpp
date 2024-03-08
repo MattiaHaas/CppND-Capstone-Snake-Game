@@ -1,6 +1,8 @@
 #include "game.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <algorithm>
 #include "SDL.h"
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
@@ -8,16 +10,15 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
+  // Ask user to enter name
+  std::cout << "Please enter your username: ";
+  std::cin >> user_name;
         
-        // Ask user to enter name
-        std::cout << "Please enter your username: ";
-        std::cin >> user_name;
-              
-        // Define score file location
-        high_score_file = "../data/high_scores.txt";
-        
-        // Place food
-        PlaceFood();
+  // Define score file location
+  high_score_file = "../data/high_scores.txt";
+  
+  // Place food
+  PlaceFood();
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -98,8 +99,34 @@ void Game::SaveScore(){
 
   if (score>0){
     score_file << user_name << ";" << score << std::endl;
-    std::cout << "User: " << user_name << ", Score: " << score << " saved to file" << std::endl;
   }
+}
+
+void Game::PrintHighScore(){
+  std::string user_name;
+  int score;
+  
+  int high_score = 0;
+  std::string high_score_user = "";
+  
+  std::ifstream filestream(high_score_file);
+  std::string line;
+  
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::replace(line.begin(), line.end(), ' ', '_');
+      std::replace(line.begin(), line.end(), ';', ' ');
+      std::istringstream linestream(line);
+      while (linestream >> user_name >> score) {
+        if (score > high_score) {
+          std::replace(user_name.begin(), user_name.end(), '_', ' ');
+          high_score = score;
+          high_score_user = user_name;
+        }
+      }
+    }
+  }
+  std::cout << "The player " << high_score_user << " has the high score " << high_score << std::endl;
 }
 
 int Game::GetScore() const { return score; }
