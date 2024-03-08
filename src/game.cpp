@@ -1,5 +1,6 @@
 #include "game.h"
 #include <iostream>
+#include <fstream>
 #include "SDL.h"
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
@@ -7,7 +8,16 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
-  PlaceFood();
+        
+        // Ask user to enter name
+        std::cout << "Please enter your username: ";
+        std::cin >> user_name;
+              
+        // Define score file location
+        high_score_file = "../data/high_scores.txt";
+        
+        // Place food
+        PlaceFood();
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -80,6 +90,15 @@ void Game::Update() {
     // Grow snake and increase speed.
     snake.GrowBody();
     snake.speed += 0.02;
+  }
+}
+
+void Game::SaveScore(){
+  std::ofstream score_file(high_score_file, std::ios_base::app | std::ios_base::out);
+
+  if (score>0){
+    score_file << user_name << ";" << score << std::endl;
+    std::cout << "User: " << user_name << ", Score: " << score << " saved to file" << std::endl;
   }
 }
 
