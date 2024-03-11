@@ -24,7 +24,7 @@ class Game {
  private:
   Snake snake;
   SDL_Point food;
-  std::unique_ptr<Obstacle> obstacle;
+  std::vector<std::unique_ptr<Obstacle>> obstacles;
 
   std::random_device dev;
   std::mt19937 engine;
@@ -36,7 +36,7 @@ class Game {
   std::string user_name;
 
   void PlaceFood();
-  void GenerateObstacle(int grid_width, int grid_height);
+  void GenerateObstacles(int num_obstacles, int grid_width, int grid_height);
   void Update();
 };
 

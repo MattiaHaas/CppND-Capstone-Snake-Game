@@ -22,7 +22,7 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
   PlaceFood();
         
   // Place obstacles
-  GenerateObstacle(static_cast<int>(grid_width - 1), static_cast<int>(grid_height - 1));
+  GenerateObstacles(2, static_cast<int>(grid_width - 1), static_cast<int>(grid_height - 1));
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -40,7 +40,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
     Update();
-    renderer.Render(snake, food, obstacle->point);
+    renderer.Render(snake, food, obstacles);
 
     frame_end = SDL_GetTicks();
 
@@ -80,17 +80,18 @@ void Game::PlaceFood() {
   }
 }
 
-void Game::GenerateObstacle(int grid_width, int grid_height) {
+void Game::GenerateObstacles(int num_obstacles, int grid_width, int grid_height) {
   
   // Generate obstacle
-  obstacle = std::make_unique<Obstacle>(grid_width, grid_height);
+  for (int i=0; i<num_obstacles; ++i){
+  obstacles.emplace_back(std::make_unique<Obstacle>(grid_width, grid_height));
+  }
 }
 
 void Game::Update() {
   if (!snake.alive) return;
 
   snake.Update();
-  obstacle->Update();
 
   int new_x = static_cast<int>(snake.head_x);
   int new_y = static_cast<int>(snake.head_y);
@@ -104,10 +105,14 @@ void Game::Update() {
     snake.speed += 0.02;
   }
   
-  // Check if there's obstacle here
-  if (obstacle->point.x == new_x && obstacle->point.y == new_y) {
-    snake.alive = false;
+  // Check if snake crashes with any of the objects
+  for (int i=0; i< obstacles.size(); ++i){
+    obstacles[i]->Update();
+    if (obstacles[i]->point.x == new_x && obstacles[i]->point.y == new_y) {
+    	snake.alive = false;
+  	}
   }
+  
 }
 
 void Game::SaveScore(){
