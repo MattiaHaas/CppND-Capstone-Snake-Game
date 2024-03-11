@@ -22,11 +22,7 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
   PlaceFood();
         
   // Place obstacles
-  GenerateObstacle(grid_width, grid_height);
-}
-
-Game::~Game(){
-  delete obstacle;
+  GenerateObstacle(static_cast<int>(grid_width - 1), static_cast<int>(grid_height - 1));
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -84,15 +80,17 @@ void Game::PlaceFood() {
   }
 }
 
-void Game::GenerateObstacle(std::size_t grid_width, std::size_t grid_height) {
+void Game::GenerateObstacle(int grid_width, int grid_height) {
+  
   // Generate obstacle
-  obstacle = new Obstacle(grid_width, grid_height);
+  obstacle = std::make_unique<Obstacle>(grid_width, grid_height);
 }
 
 void Game::Update() {
   if (!snake.alive) return;
 
   snake.Update();
+  obstacle->Update();
 
   int new_x = static_cast<int>(snake.head_x);
   int new_y = static_cast<int>(snake.head_y);

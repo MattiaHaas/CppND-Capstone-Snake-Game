@@ -2,31 +2,29 @@
 #include <random>
 #include <iostream>
 
-Obstacle::Obstacle(std::size_t grid_width, std::size_t grid_height){
-  // Define the size of the window
-  grid_width = grid_width;  
-  grid_height = grid_height;
+Obstacle::Obstacle(int grid_width, int grid_height) : grid_width(grid_width) , grid_height(grid_height){
   
   // Place obstacle on random field inside of window
   std::random_device os_seed;
   const uint_least32_t seed = os_seed();
   
   std::mt19937 generator(seed);
-  std::uniform_real_distribution<double> x_pos(0, grid_width);  
-  std::uniform_real_distribution<double> y_pos(0, grid_height);
+  std::uniform_int_distribution x_pos(0, grid_width);  
+  std::uniform_int_distribution y_pos(0, grid_height);
   
-  float obstacle_x = x_pos(generator);
-  float obstacle_y = y_pos(generator);
-  
+  obstacle_x = x_pos(generator);
+  obstacle_y = y_pos(generator);
+
   point.x = static_cast<int>(obstacle_x);
   point.y = static_cast<int>(obstacle_y);
   
   // Get random direction
   std::uniform_int_distribution dir(0, 3);
   direction = Direction{dir(generator)};
+  
 }
 
-Obstacle& Obstacle::operator=(const Obstacle &source){
+Obstacle& Obstacle::operator=(Obstacle &&source){
   if (this == &source)
     return *this;
 
@@ -35,14 +33,15 @@ Obstacle& Obstacle::operator=(const Obstacle &source){
   obstacle_y = source.obstacle_y;
   
   point = source.point;
-  grid_width = source.grid_width;
-  grid_height = source.grid_height;
+  grid_width = source.getGridWidth();
+  grid_height = source.getGridHeight();
   direction = source.direction;
 
   return *this;
 }
 
 void Obstacle::Update() {
+  
   switch (direction) {
     case Direction::kUp:
       obstacle_y -= speed;
@@ -68,3 +67,9 @@ void Obstacle::Update() {
   point.x = static_cast<int>(obstacle_x);
   point.y = static_cast<int>(obstacle_y);
 }
+
+int Obstacle::getGridWidth() {return grid_width; }
+int Obstacle::getGridHeight() {return grid_height; }
+
+void Obstacle::setGridWidth(int width){grid_width = width; }
+void Obstacle::setGridHeight(int height){grid_height = height; }
