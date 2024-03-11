@@ -1,4 +1,5 @@
 #include "game.h"
+#include "obstacle.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -19,6 +20,13 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
   
   // Place food
   PlaceFood();
+        
+  // Place obstacles
+  GenerateObstacle(grid_width, grid_height);
+}
+
+Game::~Game(){
+  delete obstacle;
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -36,7 +44,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
     Update();
-    renderer.Render(snake, food);
+    renderer.Render(snake, food, obstacle->point);
 
     frame_end = SDL_GetTicks();
 
@@ -76,6 +84,11 @@ void Game::PlaceFood() {
   }
 }
 
+void Game::GenerateObstacle(std::size_t grid_width, std::size_t grid_height) {
+  // Generate obstacle
+  obstacle = new Obstacle(grid_width, grid_height);
+}
+
 void Game::Update() {
   if (!snake.alive) return;
 
@@ -91,6 +104,11 @@ void Game::Update() {
     // Grow snake and increase speed.
     snake.GrowBody();
     snake.speed += 0.02;
+  }
+  
+  // Check if there's obstacle here
+  if (obstacle->point.x == new_x && obstacle->point.y == new_y) {
+    snake.alive = false;
   }
 }
 
