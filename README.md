@@ -30,17 +30,38 @@ In this project, you can build your own C++ application or extend this Snake gam
 3. Compile: `cmake .. && make`
 4. Run it: `./SnakeGame`.
 
+## New features
 
-## CC Attribution-ShareAlike 4.0 International
+- Added a new feature which adds moving obstacles to the game. When the snake head hits one of the moving obstacles the game is over
+- Added an input for the players name
+- The score is saved into a txt file after every game
+- The high score is displayed at the end of every game
 
+## Rubic points addressed
 
-Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
+### Compiling and Testing
 
-This work is licensed under a
-[Creative Commons Attribution-ShareAlike 4.0 International License][cc-by-sa].
+The repository has been cloned into the workspace environment and has been compiled there. The code runs without issues
 
-[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
+### Loops, Functions, I/O
 
-[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/
-[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
-[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
+- Demonstrated knowledge about functions and control structures by restructuring render function of Renderer object
+- Added score keeping function in game.cpp which reads and writes to files
+- Added player name as input in game.cpp
+
+### Object Oriented Programming
+
+- Added obstacle class
+- Used initializer list in normal class constructor of obstacle class
+- Overloaded the constructor of the obstacle class to create a copy constructor
+
+### Memory Management
+
+- Used references in multiple instances like for example in the renderer class for rendering the snake or the food
+- Implemented the rule of 5 in the obstacle class. Default constructor was chosen because no memory needs to be de-allocated
+- Used a list of unique_ptrs to store the obstacles in the game class
+
+### Concurrency
+
+- The project uses concurrency in the rendering class
+- Two futures are used in the render class to make sure the snake and food are rendered in time
