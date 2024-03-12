@@ -24,6 +24,33 @@ Obstacle::Obstacle(int grid_width, int grid_height) : grid_width(grid_width) , g
   
 }
 
+Obstacle::Obstacle(Obstacle const &source){
+  speed = source.speed;
+  obstacle_x = source.obstacle_x;
+  obstacle_y = source.obstacle_y;
+  
+  point = source.point;
+  grid_width = source.grid_width;
+  grid_height = source.grid_height;
+  direction = source.direction;
+}
+
+Obstacle& Obstacle::operator=(Obstacle const &source){
+  if (this == &source)
+    return *this;
+
+  speed = source.speed;
+  obstacle_x = source.obstacle_x;
+  obstacle_y = source.obstacle_y;
+  
+  point = source.point;
+  grid_width = source.grid_width;
+  grid_height = source.grid_height;
+  direction = source.direction;
+
+  return *this;
+}
+
 Obstacle& Obstacle::operator=(Obstacle &&source){
   if (this == &source)
     return *this;

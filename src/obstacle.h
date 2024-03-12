@@ -10,7 +10,10 @@ class Obstacle {
   enum class Direction { kUp, kDown, kLeft, kRight };
   
   Obstacle(int grid_width, int grid_height);
+  Obstacle(Obstacle const &source);
+  Obstacle &operator=(Obstacle const &source);  
   Obstacle &operator=(Obstacle &&source);
+
 
   void Update();
   int getGridWidth();
