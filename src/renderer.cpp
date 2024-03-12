@@ -33,6 +33,10 @@ Renderer::Renderer(const std::size_t screen_width,
     std::cerr << "Renderer could not be created.\n";
     std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
   }
+  
+  // Define grid cell size
+  block.w = screen_width / grid_width;
+  block.h = screen_height / grid_height;
 }
 
 Renderer::~Renderer() {
@@ -40,29 +44,7 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-void Renderer::Render(Snake const snake, SDL_Point const &food, std::vector<std::unique_ptr<Obstacle>> const &obstacles) {
-  SDL_Rect block;
-  block.w = screen_width / grid_width;
-  block.h = screen_height / grid_height;
-
-  // Clear screen
-  SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
-  SDL_RenderClear(sdl_renderer);
-
-  // Render food
-  SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
-  block.x = food.x * block.w;
-  block.y = food.y * block.h;
-  SDL_RenderFillRect(sdl_renderer, &block);
-  
-  // Render obstacles in green
-  SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0xFF, 0x00, 0xFF);
-  for (int i=0; i< obstacles.size(); ++i){
-    block.x = obstacles[i]->point.x * block.w;
-    block.y = obstacles[i]->point.y * block.h;
-    SDL_RenderFillRect(sdl_renderer, &block);
-  }
-
+void Renderer::RenderSnake(Snake const &snake){
   // Render snake's body
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
   for (SDL_Point const &point : snake.body) {
@@ -80,6 +62,41 @@ void Renderer::Render(Snake const snake, SDL_Point const &food, std::vector<std:
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
   }
   SDL_RenderFillRect(sdl_renderer, &block);
+}
+
+void Renderer::RenderFood(SDL_Point const &food){
+  SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
+  block.x = food.x * block.w;
+  block.y = food.y * block.h;
+  SDL_RenderFillRect(sdl_renderer, &block);
+}
+
+void Renderer::RenderObstacle(std::unique_ptr<Obstacle> const &obstacle){
+  SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0xFF, 0x00, 0xFF);
+  block.x = obstacle->point.x * block.w;
+  block.y = obstacle->point.y * block.h;
+  SDL_RenderFillRect(sdl_renderer, &block);
+}
+
+void Renderer::Render(Snake const snake, SDL_Point const &food, std::vector<std::unique_ptr<Obstacle>> const &obstacles) {
+
+  // Creating futures
+  std::vector<std::future<void>> futures;
+  
+  // Clear screen
+  SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
+  SDL_RenderClear(sdl_renderer);
+
+  // Render food
+  RenderFood(food);
+  
+  // Render snake
+  RenderSnake(snake);
+  
+  // Render obstacles
+  for (int i=0; i< obstacles.size(); ++i){
+    RenderObstacle(obstacles[i]);
+  }
 
   // Update Screen
   SDL_RenderPresent(sdl_renderer);

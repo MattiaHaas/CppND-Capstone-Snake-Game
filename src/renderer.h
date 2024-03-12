@@ -17,6 +17,10 @@ class Renderer {
   void UpdateWindowTitle(int score, int fps);
 
  private:
+  void RenderSnake(Snake const &snake);
+  void RenderFood(SDL_Point const &food);  
+  void RenderObstacle(std::unique_ptr<Obstacle> const &obstacle);
+  
   SDL_Window *sdl_window;
   SDL_Renderer *sdl_renderer;
 
@@ -24,6 +28,7 @@ class Renderer {
   const std::size_t screen_height;
   const std::size_t grid_width;
   const std::size_t grid_height;
+  SDL_Rect block;
 };
 
 #endif
