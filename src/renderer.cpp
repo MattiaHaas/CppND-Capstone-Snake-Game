@@ -79,9 +79,6 @@ void Renderer::RenderObstacle(std::unique_ptr<Obstacle> const &obstacle){
 }
 
 void Renderer::Render(Snake const snake, SDL_Point const &food, std::vector<std::unique_ptr<Obstacle>> const &obstacles) {
-
-  // Creating futures
-  std::vector<std::future<void>> futures;
   
   // Clear screen
   SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
