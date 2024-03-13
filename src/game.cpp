@@ -3,12 +3,16 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <mutex>
+#include <chrono>
 #include <algorithm>
 #include "SDL.h"
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
       engine(dev()),
+      grid_width_(static_cast<int>(grid_width - 1)),
+      grid_height_(static_cast<int>(grid_height - 1)),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
   // Ask user to enter name
@@ -22,7 +26,30 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
   PlaceFood();
         
   // Place obstacles
-  GenerateObstacles(2, static_cast<int>(grid_width - 1), static_cast<int>(grid_height - 1));
+  GenerateObstacles(2, grid_width_, grid_height_);
+}
+
+void Game::Timer()
+{
+  timer_active = true;
+  const int timer_time = 15;
+  auto start_time = std::chrono::high_resolution_clock::now();
+  std::unique_lock<std::mutex> lock(mutex);
+  while (timer_active)
+  {
+    lock.unlock();
+    auto current_time = std::chrono::high_resolution_clock::now();
+    auto elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
+    if (elapsed_seconds >= timer_time)
+    {
+      // Timer is up
+      timer_active = false;
+      break;
+    }
+    lock.lock();
+    // Wait for a short interval or until the condition_variable is notified
+    cond_var.wait_for(lock, std::chrono::milliseconds(800));
+  }
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -33,9 +60,22 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_duration;
   int frame_count = 0;
   bool running = true;
+  timer_active = false;
 
   while (running) {
     frame_start = SDL_GetTicks();
+    
+    // Check if timer is still running
+    if (!timer_active)
+    { 
+      // Delete current obstacles and generate new obstacles
+      obstacles.clear();
+      
+      GenerateObstacles(2, grid_width_, grid_height_);
+      timer_active = true;
+      obstacles_thread = std::thread(&Game::Timer, this);
+      obstacles_thread.detach();
+    }
 
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
