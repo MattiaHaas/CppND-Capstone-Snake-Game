@@ -37,11 +37,34 @@ Renderer::Renderer(const std::size_t screen_width,
   // Define grid cell size
   block.w = screen_width / grid_width;
   block.h = screen_height / grid_height;
+        
+  // Load textures
+  LoadTextures();
 }
 
 Renderer::~Renderer() {
   SDL_DestroyWindow(sdl_window);
   SDL_Quit();
+}
+
+void Renderer::LoadTextures() {
+  
+  // Load textures for food and obstacles
+  food_texture = IMG_LoadTexture(sdl_renderer, "../data/textures/food.png");  
+  obstacle_texture = IMG_LoadTexture(sdl_renderer, "../data/textures/obstacles.png");
+  
+  // Define block size of food
+  block_food.w = block.w;
+  block_food.h = block.h;
+  
+  // Define block size of obstacle
+  block_obstacle.w = block.w;
+  block_obstacle.h = block.h;
+  
+  // Render textures on SDL_Rects
+  SDL_RenderCopy(sdl_renderer, food_texture, &block, &block_food);
+  SDL_RenderCopy(sdl_renderer, obstacle_texture, &block, &block_obstacle);
+  
 }
 
 void Renderer::RenderSnake(Snake const &snake){
@@ -65,17 +88,15 @@ void Renderer::RenderSnake(Snake const &snake){
 }
 
 void Renderer::RenderFood(SDL_Point const &food){
-  SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
-  block.x = food.x * block.w;
-  block.y = food.y * block.h;
-  SDL_RenderFillRect(sdl_renderer, &block);
+  block_food.x = food.x * block_food.w;
+  block_food.y = food.y * block_food.h;
+  SDL_RenderCopy(sdl_renderer, food_texture, NULL, &block_food);
 }
 
 void Renderer::RenderObstacle(std::unique_ptr<Obstacle> const &obstacle){
-  SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0xFF, 0x00, 0xFF);
-  block.x = obstacle->point.x * block.w;
-  block.y = obstacle->point.y * block.h;
-  SDL_RenderFillRect(sdl_renderer, &block);
+  block_obstacle.x = obstacle->point.x * block_obstacle.w;
+  block_obstacle.y = obstacle->point.y * block_obstacle.h;
+  SDL_RenderCopy(sdl_renderer, obstacle_texture, NULL, &block_obstacle);
 }
 
 void Renderer::Render(Snake const snake, SDL_Point const &food, std::vector<std::unique_ptr<Obstacle>> const &obstacles) {
